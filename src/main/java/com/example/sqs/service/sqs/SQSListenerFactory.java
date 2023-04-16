@@ -79,6 +79,12 @@ public class SQSListenerFactory {
             throw new RuntimeException(queueName + " queue duplicated");
         }
 
+        String queueUrl = getQueueUrl(queueName);
+        Parameter[] parameters = method.getParameters();
+        if (parameters != null && parameters.length > 1) {
+            throw new RuntimeException("sqs listener method can have only 1 argument.[" + method.getDeclaringClass().getName() + "." + method.getName() + "]");
+        }
+
         String concurrentStr = sqsConsumer.concurrentString();
         int concurrentCount = sqsConsumer.concurrent();
         if (concurrentStr != null && !concurrentStr.isBlank()) {
@@ -92,9 +98,6 @@ public class SQSListenerFactory {
             String value = propertyResolver.resolveRequiredPlaceholders(waitSecondsStr);
             waitSeconds = Integer.parseInt(value);
         }
-
-        String queueUrl = getQueueUrl(queueName);
-        Parameter[] parameters = method.getParameters();
 
         map.put(queueName, SqsConsumerInfo.builder()
                 .queueUrl(queueUrl)

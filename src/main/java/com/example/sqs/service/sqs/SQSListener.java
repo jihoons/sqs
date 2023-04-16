@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
-import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
+import software.amazon.awssdk.services.sqs.model.*;
 
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -133,11 +130,9 @@ public class SQSListener implements Runnable {
                 .waitTimeSeconds(this.consumer.getWaitSeconds())
                 .build();
         ReceiveMessageResponse response = sqsClient.receiveMessage(request);
-        List<Message> messages = response.messages();
-        if (messages == null || CollectionUtils.isEmpty(messages)) {
+        if (!response.hasMessages() || CollectionUtils.isEmpty(response.messages()))
             return null;
-        }
-        return messages;
+        return response.messages();
     }
 
     private void deleteMessage(Message message) {
