@@ -43,19 +43,22 @@ public class SQSListener implements Runnable {
     @Override
     public void run() {
         while (running.get()) {
-            List<Message> messages = getMessage(consumer.getConcurrent());
-            if (messages == null)
+            if (!canExecute()) {
+                log.debug("wait worker {}", processingCounter.get());
+                waitWorker();
                 continue;
+            }
+
+            List<Message> messages = getMessage(consumer.getConcurrent() - processingCounter.get());
+            if (messages == null) {
+                log.info("empty messages");
+                continue;
+            }
 
             for (Message message : messages) {
-                if (!canExecute()) {
-                    waitWorker();
-                    continue;
-                }
-
-                processingCounter.incrementAndGet();
                 if (!running.get())
                     break;
+                processingCounter.incrementAndGet();
 
                 deleteMessage(message);
                 log.info(message.body());
@@ -79,6 +82,7 @@ public class SQSListener implements Runnable {
     }
 
     private boolean canExecute() {
+        log.info("processingCounter : {}", processingCounter.get());
         if (processingCounter.get() >= consumer.getConcurrent()) {
             return false;
         }
@@ -87,7 +91,7 @@ public class SQSListener implements Runnable {
 
     private void waitWorker() {
         try {
-            TimeUnit.MILLISECONDS.sleep(10);
+            TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException ignore) {
         }
     }
@@ -103,6 +107,7 @@ public class SQSListener implements Runnable {
             log.error("consumer invoke error", e);
         }
         processingCounter.decrementAndGet();
+        log.info("decrement processingCounter : {}", processingCounter.get());
     }
 
     private Object[] getArguments(String body, Parameter[] parameters) {
