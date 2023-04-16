@@ -1,0 +1,7 @@
+app:
+  sqs:
+    queue:
+      test:
+        name: test.fifo
+        concurrent: 2
+        waitSeconds: 5
