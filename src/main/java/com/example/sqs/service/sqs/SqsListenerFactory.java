@@ -24,12 +24,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SQSListenerFactory {
+public class SqsListenerFactory {
     private final ApplicationContext applicationContext;
     private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
     private final Map<String, SqsConsumerInfo> map = new HashMap<>();
-    private List<SQSListener> listeners;
+    private List<SqsListener> listeners;
     private ExecutorService executor;
     private final PropertyResolver propertyResolver;
 
@@ -48,7 +48,7 @@ public class SQSListenerFactory {
         for (Map.Entry<String, SqsConsumerInfo> entry : map.entrySet()) {
             String queueName = entry.getKey();
             SqsConsumerInfo consumer = entry.getValue();
-            SQSListener sqsListener = new SQSListener(sqsClient, consumer, objectMapper, executor);
+            SqsListener sqsListener = new SqsListener(sqsClient, consumer, objectMapper, executor);
             this.listeners.add(sqsListener);
             sqsListener.start("sqsListener-" + queueName);
         }
@@ -130,8 +130,8 @@ public class SQSListenerFactory {
     @PreDestroy
     public void end() {
         log.info("end");
-        this.listeners.forEach(SQSListener::stop);
-        Optional<SQSListener> option = this.listeners.stream().filter(SQSListener::isProcessing).findFirst();
+        this.listeners.forEach(SqsListener::stop);
+        Optional<SqsListener> option = this.listeners.stream().filter(SqsListener::isProcessing).findFirst();
         while (option.isPresent()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(50);

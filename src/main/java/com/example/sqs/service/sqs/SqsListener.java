@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RequiredArgsConstructor
-public class SQSListener implements Runnable {
+public class SqsListener implements Runnable {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicInteger processingCounter = new AtomicInteger(0);
 
@@ -51,7 +51,7 @@ public class SQSListener implements Runnable {
 
             List<Message> messages = getMessage(consumer.getConcurrent() - processingCounter.get());
             if (messages == null) {
-                log.info("empty messages");
+                log.debug("empty messages");
                 continue;
             }
 
@@ -61,7 +61,7 @@ public class SQSListener implements Runnable {
                 processingCounter.incrementAndGet();
 
                 deleteMessage(message);
-                log.info(message.body());
+                log.debug(message.body());
                 try {
                     processMessage(message);
                 } catch (Exception e) {
@@ -82,7 +82,7 @@ public class SQSListener implements Runnable {
     }
 
     private boolean canExecute() {
-        log.info("processingCounter : {}", processingCounter.get());
+        log.debug("processingCounter : {}", processingCounter.get());
         if (processingCounter.get() >= consumer.getConcurrent()) {
             return false;
         }
@@ -107,7 +107,7 @@ public class SQSListener implements Runnable {
             log.error("consumer invoke error", e);
         }
         processingCounter.decrementAndGet();
-        log.info("decrement processingCounter : {}", processingCounter.get());
+        log.debug("decrement processingCounter : {}", processingCounter.get());
     }
 
     private Object[] getArguments(String body, Parameter[] parameters) {

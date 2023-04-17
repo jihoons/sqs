@@ -8,19 +8,11 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Slf4j
 @Configuration
-public class SQSConfiguration {
+public class SqsConfiguration {
     @Bean
     public SqsClient sqsClient() {
         return SqsClient.builder()
                 .region(Region.AP_NORTHEAST_2)
                 .build();
     }
-
-//    @Value("${app.sqs.queue}")
-//    private String queueName;
-//
-//    @Bean
-//    public SQSListener sqsListener(ApplicationContext applicationContext, ObjectMapper objectMapper, SqsClient sqsClient) {
-//        return new SQSListener(applicationContext, objectMapper, sqsClient, queueName);
-//    }
 }

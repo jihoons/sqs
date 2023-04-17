@@ -3,9 +3,11 @@ package com.example.sqs.service;
 import com.example.sqs.service.dto.Request;
 import com.example.sqs.service.sqs.SqsBinder;
 import com.example.sqs.service.sqs.SqsConsumer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 @SqsBinder
 public class ScrapService {
     @SqsConsumer(value = "${app.sqs.queue.test.name}",
